@@ -3,6 +3,10 @@
 import xml.sax
 import sys
 
+g_file_hash_set = set()
+
+# ModificationState Encoding="base64" BinaryHash="9d36d822-4d36-2654-9415-492500000054
+
 class MovieHandler( xml.sax.ContentHandler ):
     def __init__(self):
         self.CurrentData = ""
@@ -11,6 +15,10 @@ class MovieHandler( xml.sax.ContentHandler ):
 
     # Call when an element starts
     def startElement(self, tag, attributes):
+        global g_file_hash_set
+        if tag == "ModificationState":
+            hash = attributes["BinaryHash"]
+            g_file_hash_set.add(hash)
         self.CurrentData = tag
 
     # Call when an elements ends
@@ -30,7 +38,7 @@ class MovieHandler( xml.sax.ContentHandler ):
     def characters(self, content):
         if self.CurrentData == "ActualMediaFilePath":
             self.path += content
-  
+
 if ( __name__ == "__main__"):
     
     if len(sys.argv) == 2:
@@ -45,6 +53,8 @@ if ( __name__ == "__main__"):
         parser.setContentHandler( Handler )
         
         parser.parse(sys.argv[1])
+
+        print("Media files: ", len(g_file_hash_set))
     else:
         print("Usage...")    
     
