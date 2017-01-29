@@ -1,13 +1,21 @@
 #!/bin/bash
 # ./ppxmlconvert.sh PPXMLTest.prproj
 # Adobe Premiere Pro CC stores project files as gzipped xml
-# This script copies, unpacks and renames a given prokect file
+# This script copies, unpacks and renames a given project file
 # so it can be easily read with a text editor.
 
 
 #if something fails, abort
 set -e
 #set -x
+
+if [ $# -ne 1 ]; then
+    echo
+	echo $0: usage: ppxmlconvert.sh premProProjectFile.prproj
+	echo "# takes a native format Premier Pro project file and"
+	echo "# unpacks it into an xml text file."
+    exit 1
+fi
 
 function main {
 	file_full_pathname=$1
@@ -25,7 +33,13 @@ function main {
 	
 	# copy it back to wherever we started from and clean up
 	cp -i -p  /tmp/"$file_leaf".xml "$file_path"/
+	echo "#Created  "$file_path"/"$file_leaf".xml"
 	rm  /tmp/"$file_leaf".xml 
 
 }
-main "$1"
+
+if [ -r "$1" ]; then
+	main "$1"
+else
+   echo "The file '$1' does not exist or is not readable"
+fi
