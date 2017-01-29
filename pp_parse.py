@@ -82,11 +82,11 @@ def print_media_paths(file_name, options):
 #                           medRef.actualMediFilePath)
     sorted_list = sorted(medRefsSet)
 
-    if options.count is True:
+    if "count" in options and options.count is True:
         print("Media file count: ", len(medRefsSet))
     else:
         for a_ref in sorted_list:
-            if options.brief is True:
+            if "brief" in options and options.brief is True:
                 head, tail = os.path.split(a_ref)
                 print(tail)
             else:
