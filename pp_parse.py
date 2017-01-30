@@ -3,11 +3,44 @@
 
 A simple python module to parse Adobe Premiere Pro CC project files,
 and print out all the media paths that the project references.
+Tested with Adobe Premiere Pro CC 2015.4
 
 Example:
         $ python pp_parse.py myAwesomeMovie.prproj.xml
         Current version parses EXPANDED xml files.
         See accompanying shell script ppxmlconvert.sh.
+
+Created by Frank Giraffe fgiraffe@gmail.com, January 29, 2017
+
+Copyright (c) 2017 [Frank Giraffe]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+    Why does this scrtipt exist?
+
+    The Premeire Pro file format is officially undocumented.
+    But AFAICT there is no easy way to just extract the files
+    that a project references as TEXT. Exporting a batch list is a
+    little ugly, and does not offer the full path.
+    You can export FCP XML and use that, but that is an extra step.
+
+    so what is a "good" media chunk inside a Premiere Pro project file?
+    To be good it has to:
+        - have a ObjectUID attribute. Not sure what the other Media types
+            are but they have a ObjectURefs instead.
+        - not be a proxy (no <IsProxy> chunk, or set to false)
+        - to have a legit lookin <ContentAndMetadataState> chunk, namely
+            one whose value is not CMS_STATE_NOT_REAL_MEDIA_ID.
+            This handles titles, subtitles, slugs, bars and tone,
+            solid color mattes, etc.
 """
 
 import xml.sax
@@ -15,20 +48,17 @@ import sys
 import argparse
 import os.path
 
-HELP_STRING = 'Reads a Premiere Pro project file and prints \
+HELP_STRING = 'Reads an un-gzipped Premiere Pro project file and prints \
                     the media path strings.'
 
 
-class MediaRef:
-    def __init__(self, uid):
-        self.actualMediFilePath = ""
-        # this field is set to all 000s if it is a title card.
-        # in this case ActualMediaFilePath is invalid
-        self.contentAndMetadataState = ""
-        self.objectUID = uid
+CMS_STATE_NOT_REAL_MEDIA_ID = "00000000-0000-0000-0000-000000000000"
 
 
 class MovieHandler(xml.sax.ContentHandler):
+    """
+    From https://www.tutorialspoint.com/python/python_xml_processing.htm
+    """
     def __init__(self, options):
         self.CurrentData = ""
         self.options = options
@@ -36,24 +66,60 @@ class MovieHandler(xml.sax.ContentHandler):
         self.mediaRefsSet = set()
         self.mediaHashSet = set()
 
+        self.inMediaChunk = False
+        self.isProxy = False
+        self.proxyValue = ""
+        self.extra = ""
+
     # Call when an element starts
     def startElement(self, tag, attributes):
         if tag == 'ModificationState':
             hash = attributes["BinaryHash"]
             self.mediaHashSet.add(hash)
+
+        if tag == "Media":
+            if "ObjectUID" in attributes:
+                # if Media tag has a ObjectUID we are interested in it.
+                self.inMediaChunk = True
+            else:
+                # this skips the bogus Media tags with ObjectURefs attached
+                pass
+
         self.CurrentData = tag
 
     # Call when an elements ends
-    def endElement(self, tag):
-        if self.CurrentData == "ActualMediaFilePath":
-            self.mediaRefsSet.add(self.path)
+    def endElement(self, name):
+
+        if self.CurrentData == "IsProxy":
+            if self.proxyValue == "true":
+                self.isProxy = True
+            else:
+                self.isProxy = False
+
+        if name == "Media" and self.inMediaChunk:
+            if self.isProxy is False and \
+               self.extra != CMS_STATE_NOT_REAL_MEDIA_ID:
+                self.mediaRefsSet.add(self.path)
+            self.extra = ""
+            self.inMediaChunk = False
+            self.isProxy = False
+            self.proxyValue = ""
+            self.path = ""
         self.CurrentData = ""
-        self.path = ""
 
     # Call when a character is read
     def characters(self, content):
         if self.CurrentData == "ActualMediaFilePath":
+            # paths might contain escaped ampersands.
+            # so accumulate the path name in case it comes
+            # in multiple chunks
             self.path += content
+
+        if self.CurrentData == "ContentAndMetadataState":
+            self.extra = content
+
+        if self.CurrentData == "IsProxy":
+            self.proxyValue = content
 
 
 def print_media_paths(file_name, options):
@@ -84,13 +150,18 @@ def print_media_paths(file_name, options):
 
     if "count" in options and options.count is True:
         print("Media file count: ", len(medRefsSet))
+    elif "brief" in options and options.brief is True:
+        sorted_short_filenames = []
+        short_filenames = []
+        for a_ref in sorted_list:
+            head, tail = os.path.split(a_ref)
+            short_filenames.append(tail)
+        sorted_short_filenames = sorted(short_filenames)
+        for aRef in sorted_short_filenames:
+            print(aRef)
     else:
         for a_ref in sorted_list:
-            if "brief" in options and options.brief is True:
-                head, tail = os.path.split(a_ref)
-                print(tail)
-            else:
-                print(a_ref)
+            print(a_ref)
 
     return sorted_list
 
@@ -108,4 +179,4 @@ if (__name__ == "__main__"):
                        required=False, action="store_true")
     args = parser.parse_args()
 
-    print_media_paths(args.projectfile, args)
+    list_of_files = print_media_paths(args.projectfile, args)
