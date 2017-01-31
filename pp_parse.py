@@ -44,9 +44,9 @@ all copies or substantial portions of the Software.
 """
 
 import xml.sax
-import sys
 import argparse
 import os.path
+import defusedxml.sax
 
 HELP_STRING = 'Reads an un-gzipped Premiere Pro project file and prints \
                     the media path strings.'
@@ -59,67 +59,63 @@ class MovieHandler(xml.sax.ContentHandler):
     """
     From https://www.tutorialspoint.com/python/python_xml_processing.htm
     """
-    def __init__(self, options):
-        self.CurrentData = ""
-        self.options = options
+    def __init__(self):
+        xml.sax.ContentHandler.__init__(self)
+        self.current_data = ""
         self.path = ""
-        self.mediaRefsSet = set()
-        self.mediaHashSet = set()
+        self.media_refs_set = set()
 
-        self.inMediaChunk = False
-        self.isProxy = False
-        self.proxyValue = ""
-        self.extra = ""
+        self.in_media_chunk = False
+        self.is_proxy = False
+        self.proxy_value = ""
+        self.content_media_state = ""
+
 
     # Call when an element starts
     def startElement(self, tag, attributes):
-        if tag == 'ModificationState':
-            hash = attributes["BinaryHash"]
-            self.mediaHashSet.add(hash)
-
         if tag == "Media":
             if "ObjectUID" in attributes:
                 # if Media tag has a ObjectUID we are interested in it.
-                self.inMediaChunk = True
+                self.in_media_chunk = True
             else:
                 # this skips the bogus Media tags with ObjectURefs attached
                 pass
+        self.current_data = tag
 
-        self.CurrentData = tag
 
     # Call when an elements ends
     def endElement(self, name):
-
-        if self.CurrentData == "IsProxy":
-            if self.proxyValue == "true":
-                self.isProxy = True
+        if self.current_data == "IsProxy":
+            if self.proxy_value == "true":
+                self.is_proxy = True
             else:
-                self.isProxy = False
+                self.is_proxy = False
 
-        if name == "Media" and self.inMediaChunk:
-            if self.isProxy is False and \
-               self.extra != CMS_STATE_NOT_REAL_MEDIA_ID:
-                self.mediaRefsSet.add(self.path)
-            self.extra = ""
-            self.inMediaChunk = False
-            self.isProxy = False
-            self.proxyValue = ""
+        if name == "Media" and self.in_media_chunk:
+            if self.is_proxy is False and \
+               self.content_media_state != CMS_STATE_NOT_REAL_MEDIA_ID:
+                self.media_refs_set.add(self.path)
+            self.content_media_state = ""
+            self.in_media_chunk = False
+            self.is_proxy = False
+            self.proxy_value = ""
             self.path = ""
-        self.CurrentData = ""
+        self.current_data = ""
+
 
     # Call when a character is read
     def characters(self, content):
-        if self.CurrentData == "ActualMediaFilePath":
+        if self.current_data == "ActualMediaFilePath":
             # paths might contain escaped ampersands.
             # so accumulate the path name in case it comes
             # in multiple chunks
             self.path += content
 
-        if self.CurrentData == "ContentAndMetadataState":
-            self.extra = content
+        if self.current_data == "ContentAndMetadataState":
+            self.content_media_state = content
 
-        if self.CurrentData == "IsProxy":
-            self.proxyValue = content
+        if self.current_data == "IsProxy":
+            self.proxy_value = content
 
 
 def print_media_paths(file_name, options):
@@ -133,50 +129,55 @@ def print_media_paths(file_name, options):
     """
 
     # create an XMLReader
-    parser = xml.sax.make_parser()
+    xml_parser = defusedxml.sax.make_parser()
     # turn off namepsaces
-    parser.setFeature(xml.sax.handler.feature_namespaces, 0)
+    xml_parser.setFeature(xml.sax.handler.feature_namespaces, 0)
 
     # override the default ContextHandler
-    handler = MovieHandler(options)
-    parser.setContentHandler(handler)
+    handler = MovieHandler()
+    xml_parser.setContentHandler(handler)
 
-    parser.parse(file_name)
-    medRefsSet = handler.mediaRefsSet
+    xml_parser.parse(file_name)
+    media_refs_set = handler.media_refs_set
 
-#    sorted_list = sorted(medRefsSet, key=lambda medRef:
+#    sorted_list = sorted(media_refs_set, key=lambda medRef:
 #                           medRef.actualMediFilePath)
-    sorted_list = sorted(medRefsSet)
+    sorted_list = sorted(media_refs_set)
 
     if "count" in options and options.count is True:
-        print("Media file count: ", len(medRefsSet))
+        print("Media file count: ", len(media_refs_set))
     elif "brief" in options and options.brief is True:
         sorted_short_filenames = []
         short_filenames = []
-        for a_ref in sorted_list:
-            head, tail = os.path.split(a_ref)
+        for media_ref in sorted_list:
+            _, tail = os.path.split(media_ref)
             short_filenames.append(tail)
         sorted_short_filenames = sorted(short_filenames)
-        for aRef in sorted_short_filenames:
-            print(aRef)
+        for media_ref in sorted_short_filenames:
+            print(media_ref)
     else:
-        for a_ref in sorted_list:
-            print(a_ref)
+        for media_ref in sorted_list:
+            print(media_ref)
 
     return sorted_list
 
+def main_func():
+    """ Main extry point from the command line.
+    """
+    args_parser = argparse.ArgumentParser(description=HELP_STRING)
+    args_parser.add_argument("projectfile")
+    exclusive_options = args_parser.add_mutually_exclusive_group()
+    exclusive_options.add_argument('-c', '--count',
+                                   help='Count mode: only prints file count.',
+                                   required=False, action="store_true")
+    exclusive_options.add_argument('-b', '--brief',
+                                   help='Brief mode: only print \
+                                   the media file name, not the entire path.',
+                                   required=False, action="store_true")
+    cmd_line_args = args_parser.parse_args()
 
-if (__name__ == "__main__"):
-    parser = argparse.ArgumentParser(description=HELP_STRING)
-    parser.add_argument("projectfile")
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('-c', '--count',
-                       help='Count mode: only prints file count.',
-                       required=False, action="store_true")
-    group.add_argument('-b', '--brief',
-                       help='Brief mode: only print the media file name\
-                       not the entire path.',
-                       required=False, action="store_true")
-    args = parser.parse_args()
+    _ = print_media_paths(cmd_line_args.projectfile, cmd_line_args)
 
-    list_of_files = print_media_paths(args.projectfile, args)
+
+if __name__ == "__main__":
+    main_func()
