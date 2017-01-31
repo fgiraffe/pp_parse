@@ -18,34 +18,20 @@
         "ImageFiles":1,
         "MovieFiles":1,
         "TotalFiles":2,
-        "filename":"Smorg1 fcp xml.xml"
-    },
-    {
-        "CorrectAnswer":1191,
-        "ImageFiles":117,
-        "MovieFiles":1073,
-        "TotalFiles":1191,
-        "filename":"my_GZ.prproj"
-    },
-    {
-        "CorrectAnswer":126,
-        "ImageFiles":0,
-        "MovieFiles":126,
-        "TotalFiles":126,
-        "filename":"MB_Intvw.prproj"
+        "filename":"Smorg1_fcp_xml.xml"
     },
     {
         "CorrectAnswer":1069,
         "ImageFiles":0,
         "MovieFiles":1069,
         "TotalFiles":1069,
-        "filename":"GZone_sequence_prproj.xml"
+        "filename":"GZone_sequence_2017_1101_fcp.xml"
     },
     {
-        "CorrectAnswer":131,
-        "ImageFiles":63,
-        "MovieFiles":66,
-        "TotalFiles":131,
-        "filename":"yoavs_GZ.prproj"
+        "CorrectAnswer":1191,
+        "ImageFiles":117,
+        "MovieFiles":1073,
+        "TotalFiles":1191,
+        "filename":"my_GZ_2017_1101_fcp.xml"
     }
 ]

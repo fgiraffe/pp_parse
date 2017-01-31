@@ -26,7 +26,7 @@ all copies or substantial portions of the Software.
 
     Why does this script exist?
 
-    The Premeiere Pro file format is officially undocumented.
+    The Premiere Pro file format is officially undocumented.
     But AFAICT there is no easy way to just extract the files
     that a project references as TEXT. Exporting a batch list is a
     little ugly, and does not offer the full path.
@@ -37,7 +37,7 @@ all copies or substantial portions of the Software.
         - have a ObjectUID attribute. Not sure what the other Media types
             are but they have a ObjectURefs instead.
         - not be a proxy (no <IsProxy> chunk, or set to false)
-        - to have a legit lookin <ContentAndMetadataState> chunk, namely
+        - to have a legit looking <ContentAndMetadataState> chunk, namely
             one whose value is not CMS_STATE_NOT_REAL_MEDIA_ID.
             This handles titles, subtitles, slugs, bars and tone,
             solid color mattes, etc.

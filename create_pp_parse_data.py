@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-OUTPUT_FILE_NAME = 'ppp_testdata.json'
+OUTPUT_FILE_NAME = 'tests/pp_parse_test_data.json'
 
 import json
 
@@ -17,35 +17,47 @@ test_cases = [
     "ImageFiles": 0,
     "CorrectAnswer": 2},
 
-    {"filename": "Smorg1 fcp xml.xml",
+    {"filename": "Smorg1_fcp_xml.xml",
     "TotalFiles": 2,
     "MovieFiles": 1, 
     "ImageFiles": 1,
     "CorrectAnswer": 2},
 
-    {"filename": "my_GZ.prproj",
-    "TotalFiles": 1191,
-     "MovieFiles": 1073, 
-    "ImageFiles": 117,
-    "CorrectAnswer": 1191},
-
-    {"filename": "MB_Intvw.prproj",
-    "TotalFiles": 126,
-    "MovieFiles": 126, 
-    "ImageFiles": 0,
-    "CorrectAnswer": 126},
-
-    {"filename": "GZone_sequence_prproj.xml",
+    {"filename": "GZone_sequence_2017_1101_fcp.xml",
     "TotalFiles": 1069,
     "MovieFiles": 1069, 
     "ImageFiles": 0,
     "CorrectAnswer": 1069},
 
-    {"filename": "yoavs_GZ.prproj",
-    "TotalFiles": 131,
-    "MovieFiles": 66, 
-    "ImageFiles": 63,
-    "CorrectAnswer": 131},
+    {"filename": "my_GZ_2017_1101_fcp.xml",
+    "TotalFiles": 1191,
+    "MovieFiles": 1073, 
+    "ImageFiles": 117,
+    "CorrectAnswer": 1191},
+
+#    {"filename": "my_GZ.prproj",
+#    "TotalFiles": 1191,
+#     "MovieFiles": 1073, 
+#    "ImageFiles": 117,
+#    "CorrectAnswer": 1191},
+#
+#    {"filename": "MB_Intvw.prproj",
+#    "TotalFiles": 126,
+#    "MovieFiles": 126, 
+#    "ImageFiles": 0,
+#    "CorrectAnswer": 126},
+#
+#    {"filename": "GZone_sequence_prproj.xml",
+#    "TotalFiles": 1069,
+#    "MovieFiles": 1069, 
+#    "ImageFiles": 0,
+#    "CorrectAnswer": 1069},
+#
+#    {"filename": "yoavs_GZ.prproj",
+#    "TotalFiles": 131,
+#    "MovieFiles": 66, 
+#    "ImageFiles": 63,
+#    "CorrectAnswer": 131},
 
 ]
 
