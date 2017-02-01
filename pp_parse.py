@@ -47,6 +47,7 @@ import xml.sax
 import argparse
 import os.path
 import defusedxml.sax
+import gzip
 
 HELP_STRING = 'Reads an un-gzipped Premiere Pro project file and prints \
                     the media path strings.'
@@ -137,7 +138,8 @@ def print_media_paths(file_name, options):
     handler = MovieHandler()
     xml_parser.setContentHandler(handler)
 
-    xml_parser.parse(file_name)
+    gz_file = gzip.open(file_name, 'r')
+    xml_parser.parse(gz_file)
     media_refs_set = handler.media_refs_set
 
 #    sorted_list = sorted(media_refs_set, key=lambda medRef:
