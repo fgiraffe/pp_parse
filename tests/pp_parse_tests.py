@@ -23,19 +23,13 @@ def teardown():
     test_file.close()
 
 
-def test_one_file():
-    args = Namespace(count=True)
-    file_list = pp_parse.print_media_paths(
-                                    "tests/PP_Tutorial_Lesson_05.prproj", args)
-    assert_equal(len(file_list), 33)
+def test_file_from_list():
+    # from http://nose.readthedocs.io/en/latest/writing_tests.html
+     for a_test_case in test_file_data:
+        yield check_results, a_test_case["filename"], a_test_case["UniqueFiles"]
 
+
+def check_results(file_name, correct_results):
     args = Namespace()
-    file_list = pp_parse.print_media_paths("tests/OneClip.prproj", args)
-    assert_equal(len(file_list), 1)
-
-
-def test_all_files():
-    args = Namespace()
-    for a_test_case in test_file_data:
-        file_list = pp_parse.print_media_paths(a_test_case["filename"], args)
-        assert_equal(len(file_list), a_test_case["UniqueFiles"])
+    file_list = pp_parse.print_media_paths(file_name, args)
+    assert_equal(len(file_list), correct_results)
