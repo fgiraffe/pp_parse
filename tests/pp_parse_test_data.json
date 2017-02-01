@@ -18,6 +18,11 @@
         "FileCountFCPWithDupes": 1191,
         "UniqueFiles": 477
     },
+     {
+        "filename": "tests/my_GZ_2017_1101.prproj",
+        "FileCountFCPWithDupes": 1191,
+        "UniqueFiles": 477
+    },
     {
         "filename": "tests/OneClip.prproj",
         "FileCountFCPWithDupes": 2,
