@@ -175,7 +175,18 @@ def main_func():
                                    required=False, action="store_true")
     cmd_line_args = args_parser.parse_args()
 
-    print_media_paths(cmd_line_args.projectfile, cmd_line_args)
+    if os.path.isfile(cmd_line_args.projectfile):
+        _, file_extension = os.path.splitext(cmd_line_args.projectfile)
+        if file_extension == ".prproj":
+            print_media_paths(cmd_line_args.projectfile, cmd_line_args)
+        else:
+            print("## Error: File: ")
+            print("## ", cmd_line_args.projectfile)
+            print("## is not a Premiere Pro project file (.prproj).")
+    else:
+        print("## Error: File: ")
+        print("## ", cmd_line_args.projectfile)
+        print("## does not exist or is not a readable file.")
 
 
 if __name__ == "__main__":
