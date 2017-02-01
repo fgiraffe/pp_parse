@@ -1,37 +1,46 @@
-[
-    {
-        "CorrectAnswer":36,
-        "ImageFiles":21,
-        "MovieFiles":12,
-        "TotalFiles":36,
-        "filename":"PP_Tutorial_Lesson_05.prproj"
+[{
+        "filename": "GZone_sequence_2017_1101_fcp.xml",
+        "FileCountFCPWithDupes": 1069,
+        "UniqueFiles": 355
     },
     {
-        "CorrectAnswer":2,
-        "ImageFiles":0,
-        "MovieFiles":2,
-        "TotalFiles":2,
-        "filename":"OneClip_fcp_xml.xml"
+        "filename": "GZone_sequence_fcp.xml",
+        "FileCountFCPWithDupes": 1069,
+        "UniqueFiles": 355
     },
     {
-        "CorrectAnswer":2,
-        "ImageFiles":1,
-        "MovieFiles":1,
-        "TotalFiles":2,
-        "filename":"Smorg1_fcp_xml.xml"
+        "filename": "MB_Intvw.prproj",
+        "FileCountFCPWithDupes": 126,
+        "UniqueFiles": 43
     },
     {
-        "CorrectAnswer":1069,
-        "ImageFiles":0,
-        "MovieFiles":1069,
-        "TotalFiles":1069,
-        "filename":"GZone_sequence_2017_1101_fcp.xml"
+        "filename": "my_GZ.prproj",
+        "FileCountFCPWithDupes": 1191,
+        "UniqueFiles": 477
     },
     {
-        "CorrectAnswer":1191,
-        "ImageFiles":117,
-        "MovieFiles":1073,
-        "TotalFiles":1191,
-        "filename":"my_GZ_2017_1101_fcp.xml"
+        "filename": "my_GZ_2017_1101.prproj",
+        "FileCountFCPWithDupes": 1191,
+        "UniqueFiles": 477
+    },
+    {
+        "filename": "OneClip_fcp_xml.xml",
+        "FileCountFCPWithDupes": 2,
+        "UniqueFiles": 1
+    },
+    {
+        "filename": "PP_Tutorial_Lesson_05.prproj",
+        "FileCountFCPWithDupes": 36,
+        "UniqueFiles": 33
+    },
+    {
+        "filename": "Smorg1_fcp_xml.xml",
+        "FileCountFCPWithDupes": 3,
+        "UniqueFiles": 2
+    },
+]    {
+        "filename": "yoavs_GZ.prproj",
+        "FileCountFCPWithDupes": 131,
+        "UniqueFiles": 118
     }
 ]
