@@ -6,9 +6,7 @@ and print out all the media paths that the project references.
 Tested with Adobe Premiere Pro CC 2015.4
 
 Example:
-        $ python pp_parse.py myAwesomeMovie.prproj.xml
-        Current version parses EXPANDED xml files.
-        See accompanying shell script ppxmlconvert.sh.
+        $ python pp_parse.py myAwesomeMovie.prproj
 
 Created by Frank Giraffe fgiraffe@gmail.com, January 29, 2017
 
@@ -28,9 +26,9 @@ all copies or substantial portions of the Software.
 
     The Premiere Pro file format is officially undocumented.
     But AFAICT there is no easy way to just extract the files
-    that a project references as TEXT. Exporting a batch list is a
+    that a project references as TEXT. Exporting a "Batch List" is a
     little ugly, and does not offer the full path.
-    You can export FCP XML and use that, but that is an extra step.
+    You can export FCP XML and grep that, but that is an extra step.
 
     so what is a "good" media chunk inside a Premiere Pro project file?
     To be good it has to:
@@ -46,8 +44,8 @@ all copies or substantial portions of the Software.
 import xml.sax
 import argparse
 import os.path
-import defusedxml.sax
 import gzip
+import defusedxml.sax
 
 HELP_STRING = 'Reads an un-gzipped Premiere Pro project file and prints \
                     the media path strings.'
@@ -71,18 +69,17 @@ class MovieHandler(xml.sax.ContentHandler):
         self.proxy_value = ""
         self.content_media_state = ""
 
-
     # Call when an element starts
     def startElement(self, tag, attributes):
         if tag == "Media":
             if "ObjectUID" in attributes:
                 # if Media tag has a ObjectUID we are interested in it.
                 self.in_media_chunk = True
+                # self.objID = attributes["ObjectUID"]
             else:
                 # this skips the bogus Media tags with ObjectURefs attached
                 pass
         self.current_data = tag
-
 
     # Call when an elements ends
     def endElement(self, name):
@@ -103,7 +100,6 @@ class MovieHandler(xml.sax.ContentHandler):
             self.path = ""
         self.current_data = ""
 
-
     # Call when a character is read
     def characters(self, content):
         if self.current_data == "ActualMediaFilePath":
@@ -113,10 +109,10 @@ class MovieHandler(xml.sax.ContentHandler):
             self.path += content
 
         if self.current_data == "ContentAndMetadataState":
-            self.content_media_state = content
+            self.content_media_state += content
 
         if self.current_data == "IsProxy":
-            self.proxy_value = content
+            self.proxy_value += content
 
 
 def print_media_paths(file_name, options):
@@ -163,6 +159,7 @@ def print_media_paths(file_name, options):
 
     return sorted_list
 
+
 def main_func():
     """ Main extry point from the command line.
     """
@@ -178,7 +175,7 @@ def main_func():
                                    required=False, action="store_true")
     cmd_line_args = args_parser.parse_args()
 
-    _ = print_media_paths(cmd_line_args.projectfile, cmd_line_args)
+    print_media_paths(cmd_line_args.projectfile, cmd_line_args)
 
 
 if __name__ == "__main__":
