@@ -115,7 +115,9 @@ class MovieHandler(xml.sax.ContentHandler):
             self.proxy_value += content
 
 
-def print_media_paths(file_name, options):
+def print_media_paths(file_name, only_count=False,
+                      leaf_pathnames=False,
+                      verify_val=False):
     """ prints all media paths in the given file
 
     Args:
@@ -124,6 +126,13 @@ def print_media_paths(file_name, options):
     Returns:
         set: set containing all the pathnames
     """
+
+    if only_count is True and (leaf_pathnames is True or verify_val is True):
+        # this is for error reporting when writing tests.
+        # the parameter parsing code at the main level should
+        # prevent this getting called in regular use.
+        print("## Error, count conflicts with other options")
+        return set()
 
     # create an XMLReader
     xml_parser = defusedxml.sax.make_parser()
@@ -142,9 +151,9 @@ def print_media_paths(file_name, options):
 #                           medRef.actualMediFilePath)
     sorted_list = sorted(media_refs_set)
 
-    if "count" in options and options.count is True:
+    if only_count is True:
         print("Media file count: ", len(media_refs_set))
-    elif "brief" in options and options.brief is True:
+    elif leaf_pathnames is True:
         sorted_short_filenames = []
         short_filenames = []
         for media_ref in sorted_list:
@@ -178,7 +187,10 @@ def main_func():
     if os.path.isfile(cmd_line_args.projectfile):
         _, file_extension = os.path.splitext(cmd_line_args.projectfile)
         if file_extension == ".prproj":
-            print_media_paths(cmd_line_args.projectfile, cmd_line_args)
+            print_media_paths(cmd_line_args.projectfile,
+                              only_count=cmd_line_args.count,
+                              leaf_pathnames=cmd_line_args.brief,
+                              verify_val=False)
         else:
             print("## Error: File: ")
             print("## ", cmd_line_args.projectfile)
