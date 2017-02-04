@@ -62,7 +62,7 @@ class MovieHandler(xml.sax.ContentHandler):
         xml.sax.ContentHandler.__init__(self)
         self.current_data = ""
         self.path = ""
-        self.media_refs_set = set()
+        self.media_refs_list = []
 
         self.in_media_chunk = False
         self.is_proxy = False
@@ -92,7 +92,7 @@ class MovieHandler(xml.sax.ContentHandler):
         if name == "Media" and self.in_media_chunk:
             if self.is_proxy is False and \
                self.content_media_state != CMS_STATE_NOT_REAL_MEDIA_ID:
-                self.media_refs_set.add(self.path)
+                self.media_refs_list.append(self.path)
             self.content_media_state = ""
             self.in_media_chunk = False
             self.is_proxy = False
@@ -117,7 +117,8 @@ class MovieHandler(xml.sax.ContentHandler):
 
 def print_media_paths(file_name, only_count=False,
                       leaf_pathnames=False,
-                      verify_val=False):
+                      verify_val=False,
+                      show_duplicate_files=False):
     """ prints all media paths in the given file
 
     Args:
@@ -145,14 +146,20 @@ def print_media_paths(file_name, only_count=False,
 
     gz_file = gzip.open(file_name, 'r')
     xml_parser.parse(gz_file)
-    media_refs_set = handler.media_refs_set
 
-#    sorted_list = sorted(media_refs_set, key=lambda medRef:
-#                           medRef.actualMediFilePath)
-    sorted_list = sorted(media_refs_set)
+    # collect ALL filenames including dupes
+    # now filter the collection based on options passed in
+
+    if show_duplicate_files is False:
+        temp_set = set(handler.media_refs_list)
+        media_files = list(temp_set)
+    else:
+        media_files = handler.media_refs_list
+
+    sorted_list = sorted(media_files)
 
     if only_count is True:
-        print("Media file count: ", len(media_refs_set))
+        print("Media file count: ", len(sorted_list))
     elif leaf_pathnames is True:
         sorted_short_filenames = []
         short_filenames = []
@@ -174,6 +181,10 @@ def main_func():
     """
     args_parser = argparse.ArgumentParser(description=HELP_STRING)
     args_parser.add_argument("projectfile")
+    args_parser.add_argument('-d', '--showDupes',
+                             help='Show ALL path names, including duplicates.',
+                             required=False, action="store_true")
+
     exclusive_options = args_parser.add_mutually_exclusive_group()
     exclusive_options.add_argument('-c', '--count',
                                    help='Count mode: only prints file count.',
@@ -190,6 +201,7 @@ def main_func():
             print_media_paths(cmd_line_args.projectfile,
                               only_count=cmd_line_args.count,
                               leaf_pathnames=cmd_line_args.brief,
+                              show_duplicate_files=cmd_line_args.showDupes,
                               verify_val=False)
         else:
             print("## Error: File: ")

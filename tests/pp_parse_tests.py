@@ -24,11 +24,26 @@ def teardown():
 
 def test_file_from_list():
     # from http://nose.readthedocs.io/en/latest/writing_tests.html
-     for a_test_case in test_file_data:
-        yield check_results, a_test_case["filename"], a_test_case["UniqueFiles"]
+    for a_test_case in test_file_data:
+        yield check_results_nodupes, a_test_case["filename"],\
+                                     a_test_case["UniqueFiles"]
+
+    for a_test_case in test_file_data:
+        yield check_results_dupes, a_test_case["filename"],\
+                                     a_test_case["FileCountFCPWithDupes"]
 
 
-def check_results(file_name, correct_results):
+def check_results_nodupes(file_name, correct_results):
     file_list = pp_parse.print_media_paths(file_name,
-                                only_count=False, leaf_pathnames=False)
+                                           only_count=False,
+                                           leaf_pathnames=False,
+                                           show_duplicate_files=False)
+    assert_equal(len(file_list), correct_results)
+
+
+def check_results_dupes(file_name, correct_results):
+    file_list = pp_parse.print_media_paths(file_name,
+                                           only_count=False,
+                                           leaf_pathnames=False,
+                                           show_duplicate_files=True)
     assert_equal(len(file_list), correct_results)

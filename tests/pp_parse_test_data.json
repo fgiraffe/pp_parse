@@ -15,12 +15,12 @@
     },
     {
         "filename": "tests/my_GZ.prproj",
-        "FileCountFCPWithDupes": 1191,
+        "FileCountFCPWithDupes": 1192,
         "UniqueFiles": 477
     },
      {
         "filename": "tests/my_GZ_2017_1101.prproj",
-        "FileCountFCPWithDupes": 1191,
+        "FileCountFCPWithDupes": 1192,
         "UniqueFiles": 477
     },
     {
@@ -30,7 +30,7 @@
     },
     {
         "filename": "tests/PP_Tutorial_Lesson_05.prproj",
-        "FileCountFCPWithDupes": 36,
+        "FileCountFCPWithDupes": 39,
         "UniqueFiles": 33
     },
     {
@@ -40,7 +40,7 @@
     },
     {
         "filename": "tests/yoavs_GZ.prproj",
-        "FileCountFCPWithDupes": 131,
+        "FileCountFCPWithDupes": 134,
         "UniqueFiles": 118
     }
 ]
