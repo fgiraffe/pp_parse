@@ -1,0 +1,8 @@
+.coverage
+*.pyc
+.DS_Store
+*.swp
+venv/
+misc crap/
+/tests/old_private_tests/
+
